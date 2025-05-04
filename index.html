@@ -10,10 +10,7 @@
       background-color: #000;
       color: #ff0033;
       font-family: monospace;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      overflow: hidden;
     }
 
     .terminal {
@@ -24,6 +21,7 @@
       box-shadow: 0 0 20px #ff0033;
       width: 90%;
       max-width: 600px;
+      margin: 100px auto;
     }
 
     #output {
@@ -41,31 +39,25 @@
       width: 100%;
     }
 
-    .matrix {
+    canvas {
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: black;
-      color: red;
-      font-size: 18px;
-      z-index: 9999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      animation: flicker 1s infinite;
-    }
-
-    @keyframes flicker {
-      0% { opacity: 1; }
-      50% { opacity: 0.7; }
-      100% { opacity: 1; }
-    }
-
-    .hidden {
       display: none;
+      z-index: 9999;
+    }
+
+    .final-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #ff0033;
+      font-size: 2em;
+      font-family: monospace;
+      text-align: center;
+      display: none;
+      z-index: 10000;
     }
   </style>
 </head>
@@ -75,15 +67,18 @@
     <input type="text" id="input" placeholder="Antwort hier eingeben..." autocomplete="off" onkeydown="handleKey(event)">
   </div>
 
-  <div class="matrix hidden" id="matrixEffect">
-    <div id="matrixText">1010101010010101010010101010101010010101010101</div>
-    <h1>Alles richtig<br>aber das Passwort sag ich dir nicht,<br>es ist jedoch auf dieser Seite</h1>
+  <canvas id="matrixCanvas"></canvas>
+  <div class="final-message" id="finalMessage">
+    Alles richtig<br>
+    aber das Passwort sag ich dir nicht,<br>
+    es ist jedoch auf dieser Seite
   </div>
 
   <script>
     // das wirkliche Passwort ist "NetRot"
+
     const quiz = [
-      { frage: "Wofür steht der HTTP-Status 418?", antwort: "i'm a teapot" },
+      { frage: "Welcher Code steht für 'I'm a teapot'?", antwort: "418" },
       { frage: "Welcher Code steht für 'alles okay'?", antwort: "200" },
       { frage: "Ist 12345678 ein gutes Passwort?", antwort: "nein" },
       { frage: "Auf welchem Port laufen Webseiten?", antwort: "80" }
@@ -92,7 +87,8 @@
     let index = 0;
     const output = document.getElementById("output");
     const terminal = document.getElementById("terminal");
-    const matrix = document.getElementById("matrixEffect");
+    const matrix = document.getElementById("matrixCanvas");
+    const finalMsg = document.getElementById("finalMessage");
 
     function handleKey(event) {
       if (event.key === "Enter") {
@@ -107,9 +103,7 @@
           if (index < quiz.length) {
             output.innerText += "Richtig.\n\n" + quiz[index].frage + "\n";
           } else {
-            terminal.classList.add("hidden");
-            matrix.classList.remove("hidden");
-            document.body.style.backgroundColor = "#000";
+            startMatrixEffect();
           }
         } else {
           output.innerText += "Falsch. Zugriff verweigert.\n";
@@ -121,8 +115,49 @@
       }
     }
 
-    // Startfrage anzeigen
     output.innerText += quiz[index].frage + "\n";
+
+    function startMatrixEffect() {
+      terminal.style.display = "none";
+      matrix.style.display = "block";
+      const c = matrix;
+      const ctx = c.getContext("2d");
+
+      c.height = window.innerHeight;
+      c.width = window.innerWidth;
+
+      const letters = "01";
+      const fontSize = 14;
+      const columns = c.width / fontSize;
+      const drops = Array(Math.floor(columns)).fill(1);
+
+      function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, c.width, c.height);
+
+        ctx.fillStyle = "#ff0033";
+        ctx.font = fontSize + "px monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = letters.charAt(Math.floor(Math.random() * letters.length));
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > c.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+
+          drops[i]++;
+        }
+      }
+
+      const interval = setInterval(draw, 33);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        matrix.style.display = "none";
+        finalMsg.style.display = "block";
+      }, 5000);
+    }
   </script>
 </body>
 </html>
