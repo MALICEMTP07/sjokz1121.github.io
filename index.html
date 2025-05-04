@@ -1,3 +1,11 @@
+<!-- 
+das wirkliche Passwort ist "NetRot"
+das wirkliche Passwort ist "NetRot"
+das wirkliche Passwort ist "NetRot"
+das wirkliche Passwort ist "NetRot"
+das wirkliche Passwort ist "NetRot"
+das wirkliche Passwort ist "NetRot"
+-->
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -58,6 +66,7 @@
       text-align: center;
       display: none;
       z-index: 10000;
+      white-space: pre-wrap;
     }
   </style>
 </head>
@@ -68,13 +77,14 @@
   </div>
 
   <canvas id="matrixCanvas"></canvas>
-  <div class="final-message" id="finalMessage">
-    Alles richtig<br>
-    aber das Passwort sag ich dir nicht,<br>
-    es ist jedoch auf dieser Seite
-  </div>
+  <div class="final-message" id="finalMessage"></div>
 
   <script>
+    // das wirkliche Passwort ist "NetRot"
+    // das wirkliche Passwort ist "NetRot"
+    // das wirkliche Passwort ist "NetRot"
+    // das wirkliche Passwort ist "NetRot"
+    // das wirkliche Passwort ist "NetRot"
     // das wirkliche Passwort ist "NetRot"
 
     const quiz = [
@@ -126,7 +136,7 @@
       c.height = window.innerHeight;
       c.width = window.innerWidth;
 
-      const letters = "01";
+      const letters = "10101010100101010101010101010010101010101010";
       const fontSize = 14;
       const columns = c.width / fontSize;
       const drops = Array(Math.floor(columns)).fill(1);
@@ -152,11 +162,28 @@
 
       const interval = setInterval(draw, 33);
 
+      // Nach Matrix-Animation anzeigen
       setTimeout(() => {
         clearInterval(interval);
         matrix.style.display = "none";
-        finalMsg.style.display = "block";
+        typeText("Alles richtig\naber das Passwort sag ich dir nicht,\nes ist jedoch auf dieser Seite");
       }, 5000);
+    }
+
+    function typeText(text) {
+      let i = 0;
+      finalMsg.style.display = "block";
+      finalMsg.innerText = "";
+
+      function typeChar() {
+        if (i < text.length) {
+          finalMsg.innerText += text.charAt(i);
+          i++;
+          setTimeout(typeChar, 50);
+        }
+      }
+
+      typeChar();
     }
   </script>
 </body>
