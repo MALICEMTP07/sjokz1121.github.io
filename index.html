@@ -76,12 +76,14 @@ Das wirkliche Passwort ist "NetRot"
       z-index: 999;
       display: none;
     }
-    .ascii-art {
-      white-space: pre;
-      font-size: 12px;
+    .big-message {
+      font-size: 48px;
+      font-weight: bold;
       color: #ff0033;
-      margin-top: 20px;
       animation: flicker 2s infinite;
+      text-align: center;
+      width: 100%;
+      margin-top: 20vh;
     }
     @keyframes flicker {
       0% { opacity: 1; }
@@ -107,15 +109,6 @@ Das wirkliche Passwort ist "NetRot"
     const inputField = document.getElementById("inputField");
     const blackout = document.getElementById("blackout");
     const progressBar = document.getElementById("progressBar");
-
-    const asciiNetrot = `
-  _   _ ______ ______ _____  _____  _______ 
- | \ | || ___ \| ___ \  _  ||  _  ||___  / |
- |  \| || |_/ /| |_/ / | | || | | |   / /| |
- | . ` || ___ \|    /| | | || | | |  / / | |
- | |\  || |_/ /| |\ \\ \_/ /\ \_/ /./ /  |_|
- \_| \_/\____/ \_| \_|\___/  \___/ \_/   (_)
-`;
 
     const storyLines = [
       "....",
@@ -253,7 +246,7 @@ Das wirkliche Passwort ist "NetRot"
                 blackout.style.display = "block";
                 setTimeout(() => {
                   blackout.style.display = "none";
-                  terminal.innerHTML = `<pre class='ascii-art'>${asciiNetrot}</pre>`;
+                  terminal.innerHTML = "<div class='big-message'>NETROT</div>";
                 }, 2000);
               });
             });
