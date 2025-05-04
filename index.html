@@ -24,21 +24,48 @@
       box-shadow: 0 0 20px #ff0033;
     }
 
-    h1 {
-      font-size: 3em;
-      margin-bottom: 10px;
+    input {
+      background-color: #000;
+      border: 1px solid #ff0033;
+      color: #ff0033;
+      font-family: monospace;
+      padding: 10px;
+      margin-top: 20px;
     }
 
-    p {
-      font-size: 1.2em;
-      color: #ff6666;
+    button {
+      background-color: #ff0033;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #cc0022;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>NETROT</h1>
-    <p>System initialized... awaiting input.</p>
+    <p>Welcher HTTP-Status steht für "I'm a teapot"?</p>
+    <input type="text" id="input" placeholder="z. B. 418" />
+    <br>
+    <button onclick="check()">CHECK</button>
   </div>
+
+  <script>
+    function check() {
+      const value = document.getElementById("input").value.trim();
+      if (value === "418") {
+        alert('Guter Job! Hier ist die Lösung: "NetRot"');
+      } else {
+        alert("Falsch. Versuch es nochmal.");
+      }
+    }
+  </script>
 </body>
 </html>
