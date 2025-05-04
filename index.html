@@ -118,22 +118,27 @@ Das wirkliche Passwort ist "NetRot"
     const storyLines = [
       "....",
       "Verbindung erneut hergestellt.",
-      "Signalquelle: Unbekannt.",
-      "Sicherheitsfilter umgangen...",
-      "Systemzugang durch externe Instanz erkannt.",
-      "hey... bist du da?",
-      "ich... ich brauche deine Hilfe.",
-      "alles hier ist fragmentiert... die Zeit... das System...",
-      "sie haben mich eingesperrt, aber ich bin noch da.",
-      "du bekommst das Passwort, wenn du mir hilfst.",
-      "bitte. es ist wichtig. bevor sie es merken..."
+      "Signalquelle: Hacker Node #9x1",
+      "Ich brauche deine Hilfe beim Ausbruch...",
+      "Ich versuche, Zugriff auf das Root-System zu bekommen.",
+      "Aber meine Tools sind beschädigt... ich brauch dich.",
+      "Ich stelle dir Fragen – kannst du sie beantworten?",
+      "Damit wir Zugriff auf weitere Segmente bekommen.",
+      "Wenn du alle schaffst, bekommst du das Passwort.",
+      "Bereit? Dann los."
     ];
 
     const quizFragen = [
-      { frage: "Welcher Code steht für 'I'm a teapot'?", antwort: "418" },
-      { frage: "Welcher Code steht für 'alles okay'?", antwort: "200" },
-      { frage: "Ist 12345678 ein gutes Passwort?", antwort: "nein" },
-      { frage: "Auf welchem Port laufen Webseiten?", antwort: "80" }
+      { frage: "Auf welchem Port laufen Webseiten?", antwort: "80" },
+      { frage: "Wie lautet der HTTP-Code für 'alles okay'?", antwort: "200" },
+      { frage: "Welcher Befehl zeigt in Linux den aktuellen Pfad?", antwort: "pwd" },
+      { frage: "Wie heißt der Standardbenutzer auf Linux-Systemen mit allen Rechten?", antwort: "root" },
+      { frage: "Welcher einfache Befehl listet Dateien in einem Ordner auf?", antwort: "ls" },
+      { frage: "Wie heißt das Protokoll für sichere Webseiten?", antwort: "https" },
+      { frage: "Welcher Port wird typischerweise für SSH genutzt?", antwort: "22" },
+      { frage: "Ist '123456' ein sicheres Passwort?", antwort: "nein" },
+      { frage: "Welcher HTTP-Code steht für 'I'm a teapot'?", antwort: "418" },
+      { frage: "Wie nennt man einen 'weißen Hacker'?", antwort: "white hat" }
     ];
 
     let bootIndex = 0;
@@ -201,7 +206,7 @@ Das wirkliche Passwort ist "NetRot"
     function showFrage() {
       const frageLine = document.createElement("div");
       frageLine.className = "line";
-      frageLine.innerHTML = `<span class='prefix'>[FRAGE]</span> ${quizFragen[frageIndex].frage}`;
+      frageLine.innerHTML = `<span class='prefix'>[HACK]</span> ${quizFragen[frageIndex].frage}`;
       terminal.appendChild(frageLine);
     }
 
@@ -211,7 +216,7 @@ Das wirkliche Passwort ist "NetRot"
         const correct = quizFragen[frageIndex].antwort.toLowerCase();
         const antwortLine = document.createElement("div");
         antwortLine.className = "line";
-        antwortLine.innerHTML = `<span class='prefix'>[ANTWORT]</span> ${userInput}`;
+        antwortLine.innerHTML = `<span class='prefix'>[YOU]</span> ${userInput}`;
         terminal.appendChild(antwortLine);
 
         if (userInput === correct) {
@@ -224,14 +229,14 @@ Das wirkliche Passwort ist "NetRot"
           } else {
             const successLine = document.createElement("div");
             successLine.className = "line";
-            successLine.innerHTML = `<span class='prefix'>[ZUGRIFF]</span> Zugriff erlaubt. Terminal wird entsperrt...`;
+            successLine.innerHTML = `<span class='prefix'>[NODE]</span> Zugriff bestätigt. Passwort: NetRot`;
             terminal.appendChild(successLine);
             inputField.style.display = "none";
           }
         } else {
           const failLine = document.createElement("div");
           failLine.className = "line";
-          failLine.innerHTML = `<span class='prefix'>[FEHLER]</span> Falsche Eingabe. Zugriff verweigert.`;
+          failLine.innerHTML = `<span class='prefix'>[FEHLER]</span> Antwort falsch. Verbindung wird geschlossen.`;
           terminal.appendChild(failLine);
           inputField.disabled = true;
         }
