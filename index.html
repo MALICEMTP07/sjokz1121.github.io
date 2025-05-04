@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NETROT Terminal</title>
+  <title>NETROT QUIZ</title>
   <style>
     body {
       margin: 0;
@@ -40,42 +40,80 @@
       padding: 10px;
       width: 100%;
     }
+
+    .matrix {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: black;
+      color: red;
+      font-size: 18px;
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      animation: flicker 1s infinite;
+    }
+
+    @keyframes flicker {
+      0% { opacity: 1; }
+      50% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <div class="terminal">
-    <div id="output">NETROT INITIALISIERT...\n</div>
-    <input type="text" id="input" placeholder="ja / nein eingeben..." autocomplete="off" onkeydown="handleKey(event)">
+  <div class="terminal" id="terminal">
+    <div id="output">NETROT QUIZ STARTET...\n</div>
+    <input type="text" id="input" placeholder="Antwort hier eingeben..." autocomplete="off" onkeydown="handleKey(event)">
+  </div>
+
+  <div class="matrix hidden" id="matrixEffect">
+    <div id="matrixText">1010101010010101010010101010101010010101010101</div>
+    <h1>Alles richtig<br>aber das Passwort sag ich dir nicht,<br>es ist jedoch auf dieser Seite</h1>
   </div>
 
   <script>
-    const fragen = [
-      "Bist du bereit?",
-      "Weißt du, was du tust?",
-      "Willst du fortfahren?",
-      "Wirst du die Kontrolle behalten?"
+    // das wirkliche Passwort ist "NetRot"
+    const quiz = [
+      { frage: "Wofür steht der HTTP-Status 418?", antwort: "i'm a teapot" },
+      { frage: "Welcher Code steht für 'alles okay'?", antwort: "200" },
+      { frage: "Ist 12345678 ein gutes Passwort?", antwort: "nein" },
+      { frage: "Auf welchem Port laufen Webseiten?", antwort: "80" }
     ];
 
-    let aktuelleFrage = 0;
+    let index = 0;
     const output = document.getElementById("output");
+    const terminal = document.getElementById("terminal");
+    const matrix = document.getElementById("matrixEffect");
 
     function handleKey(event) {
       if (event.key === "Enter") {
         const input = document.getElementById("input");
-        const antwort = input.value.trim().toLowerCase();
+        const userAntwort = input.value.trim().toLowerCase();
+        const richtigeAntwort = quiz[index].antwort.toLowerCase();
 
-        if (antwort !== "ja" && antwort !== "nein") {
-          output.innerText += `> ${antwort}\nUngültige Eingabe. Nur "ja" oder "nein".\n`;
-        } else {
-          output.innerText += `> ${antwort}\n`;
+        output.innerText += `> ${userAntwort}\n`;
 
-          if (aktuelleFrage < fragen.length - 1) {
-            aktuelleFrage++;
-            output.innerText += fragen[aktuelleFrage] + "\n";
+        if (userAntwort === richtigeAntwort) {
+          index++;
+          if (index < quiz.length) {
+            output.innerText += "Richtig.\n\n" + quiz[index].frage + "\n";
           } else {
-            output.innerText += "Sequenz abgeschlossen. Zugriff genehmigt.\n";
-            document.getElementById("input").disabled = true;
+            terminal.classList.add("hidden");
+            matrix.classList.remove("hidden");
+            document.body.style.backgroundColor = "#000";
           }
+        } else {
+          output.innerText += "Falsch. Zugriff verweigert.\n";
+          input.disabled = true;
         }
 
         input.value = "";
@@ -83,8 +121,8 @@
       }
     }
 
-    // Startfrage
-    output.innerText += fragen[aktuelleFrage] + "\n";
+    // Startfrage anzeigen
+    output.innerText += quiz[index].frage + "\n";
   </script>
 </body>
 </html>
