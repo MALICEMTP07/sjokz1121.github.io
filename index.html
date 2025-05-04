@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NETROT</title>
+  <title>NETROT Terminal</title>
   <style>
     body {
       margin: 0;
@@ -16,56 +16,75 @@
       height: 100vh;
     }
 
-    .container {
-      text-align: center;
+    .terminal {
+      background-color: #0d0d0d;
       border: 2px solid #ff0033;
-      padding: 40px;
+      padding: 30px;
       border-radius: 10px;
       box-shadow: 0 0 20px #ff0033;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    #output {
+      min-height: 200px;
+      margin-bottom: 20px;
+      white-space: pre-wrap;
     }
 
     input {
-      background-color: #000;
+      background: #000;
       border: 1px solid #ff0033;
       color: #ff0033;
       font-family: monospace;
       padding: 10px;
-      margin-top: 20px;
-    }
-
-    button {
-      background-color: #ff0033;
-      color: #000;
-      font-weight: bold;
-      border: none;
-      padding: 10px 20px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #cc0022;
+      width: 100%;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>NETROT</h1>
-    <p>Welcher HTTP-Status steht für "I'm a teapot"?</p>
-    <input type="text" id="input" placeholder="z. B. 418" />
-    <br>
-    <button onclick="check()">CHECK</button>
+  <div class="terminal">
+    <div id="output">NETROT INITIALISIERT...\n</div>
+    <input type="text" id="input" placeholder="ja / nein eingeben..." autocomplete="off" onkeydown="handleKey(event)">
   </div>
 
   <script>
-    function check() {
-      const value = document.getElementById("input").value.trim();
-      if (value === "418") {
-        alert('Guter Job! Hier ist die Lösung: "NetRot"');
-      } else {
-        alert("Falsch. Versuch es nochmal.");
+    const fragen = [
+      "Bist du bereit?",
+      "Weißt du, was du tust?",
+      "Willst du fortfahren?",
+      "Wirst du die Kontrolle behalten?"
+    ];
+
+    let aktuelleFrage = 0;
+    const output = document.getElementById("output");
+
+    function handleKey(event) {
+      if (event.key === "Enter") {
+        const input = document.getElementById("input");
+        const antwort = input.value.trim().toLowerCase();
+
+        if (antwort !== "ja" && antwort !== "nein") {
+          output.innerText += `> ${antwort}\nUngültige Eingabe. Nur "ja" oder "nein".\n`;
+        } else {
+          output.innerText += `> ${antwort}\n`;
+
+          if (aktuelleFrage < fragen.length - 1) {
+            aktuelleFrage++;
+            output.innerText += fragen[aktuelleFrage] + "\n";
+          } else {
+            output.innerText += "Sequenz abgeschlossen. Zugriff genehmigt.\n";
+            document.getElementById("input").disabled = true;
+          }
+        }
+
+        input.value = "";
+        output.scrollTop = output.scrollHeight;
       }
     }
+
+    // Startfrage
+    output.innerText += fragen[aktuelleFrage] + "\n";
   </script>
 </body>
 </html>
