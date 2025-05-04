@@ -1,190 +1,246 @@
-<!-- 
-das wirkliche Passwort ist "NetRot"
-das wirkliche Passwort ist "NetRot"
-das wirkliche Passwort ist "NetRot"
-das wirkliche Passwort ist "NetRot"
-das wirkliche Passwort ist "NetRot"
-das wirkliche Passwort ist "NetRot"
--->
 <!DOCTYPE html>
+<!-- 
+Das wirkliche Passwort ist "NetRot"
+Das wirkliche Passwort ist "NetRot"
+Das wirkliche Passwort ist "NetRot"
+Das wirkliche Passwort ist "NetRot"
+Das wirkliche Passwort ist "NetRot"
+Das wirkliche Passwort ist "NetRot"
+-->
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NETROT QUIZ</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NETROT // ACCESS NODE</title>
   <style>
     body {
       margin: 0;
-      background-color: #000;
+      background: #000;
       color: #ff0033;
-      font-family: monospace;
+      font-family: 'Courier New', Courier, monospace;
       overflow: hidden;
     }
 
-    .terminal {
-      background-color: #0d0d0d;
-      border: 2px solid #ff0033;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px #ff0033;
-      width: 90%;
-      max-width: 600px;
-      margin: 100px auto;
-    }
-
-    #output {
-      min-height: 200px;
-      margin-bottom: 20px;
-      white-space: pre-wrap;
-    }
-
-    input {
+    #terminal {
+      width: 100vw;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
       background: #000;
-      border: 1px solid #ff0033;
-      color: #ff0033;
-      font-family: monospace;
-      padding: 10px;
-      width: 100%;
     }
 
-    canvas {
+    .line {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .prefix {
+      color: #ff0033;
+    }
+
+    #inputField {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ff0033;
+      font: inherit;
+      flex: 1;
+      width: 100%;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .progress-container {
+      width: 100%;
+      background: #111;
+      border: 1px solid #ff0033;
+      height: 20px;
+      margin: 10px 0;
+      font-size: 14px;
+      letter-spacing: 2px;
+      color: #ff0033;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: repeating-linear-gradient(90deg, #ff0033 0, #ff0033 10px, #330000 10px, #330000 20px);
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    #blackout {
       position: fixed;
       top: 0;
       left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      z-index: 999;
       display: none;
-      z-index: 9999;
-    }
-
-    .final-message {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #ff0033;
-      font-size: 2em;
-      font-family: monospace;
-      text-align: center;
-      display: none;
-      z-index: 10000;
-      white-space: pre-wrap;
     }
   </style>
 </head>
 <body>
-  <div class="terminal" id="terminal">
-    <div id="output">NETROT QUIZ STARTET...\n</div>
-    <input type="text" id="input" placeholder="Antwort hier eingeben..." autocomplete="off" onkeydown="handleKey(event)">
+  <div id="blackout"></div>
+  <div id="terminal">
+    <div class="line" id="bootLine"></div>
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <input id="inputField" placeholder="Antwort hier eingeben..." onkeydown="handleKey(event)" />
   </div>
 
-  <canvas id="matrixCanvas"></canvas>
-  <div class="final-message" id="finalMessage"></div>
-
   <script>
-    // das wirkliche Passwort ist "NetRot"
-    // das wirkliche Passwort ist "NetRot"
-    // das wirkliche Passwort ist "NetRot"
-    // das wirkliche Passwort ist "NetRot"
-    // das wirkliche Passwort ist "NetRot"
-    // das wirkliche Passwort ist "NetRot"
+    const terminal = document.getElementById("terminal");
+    const inputField = document.getElementById("inputField");
+    const blackout = document.getElementById("blackout");
+    const progressBar = document.getElementById("progressBar");
 
-    const quiz = [
+    const bootMessages = [
+      "System BIOS v4.6.9 initializing...",
+      "Memory scan... 16384MB OK",
+      "CPU Cores active: 16",
+      "Security Layer: Online",
+      "Blackwall Interface... SYNCHRONIZED",
+      "Routing DeepNet Tunnel...",
+      "Verbindung unterbrochen...",
+      "Reinitialisiere Verbindung...",
+      "Identitätsspiegel geladen",
+      "AUTHLINK: NETROT-ACCESS-42",
+      "Initialisierung abgeschlossen."
+    ];
+
+    const storyLines = [
+      "....",
+      "Verbindung erneut hergestellt.",
+      "Signalquelle: Unbekannt.",
+      "Sicherheitsfilter umgangen...",
+      "Systemzugang durch externe Instanz erkannt.",
+      "hey... bist du da?",
+      "ich... ich brauche deine Hilfe.",
+      "alles hier ist fragmentiert... die Zeit... das System...",
+      "sie haben mich eingesperrt, aber ich bin noch da.",
+      "du bekommst das Passwort, wenn du mir hilfst.",
+      "bitte. es ist wichtig. bevor sie es merken..."
+    ];
+
+    const quizFragen = [
       { frage: "Welcher Code steht für 'I'm a teapot'?", antwort: "418" },
       { frage: "Welcher Code steht für 'alles okay'?", antwort: "200" },
       { frage: "Ist 12345678 ein gutes Passwort?", antwort: "nein" },
       { frage: "Auf welchem Port laufen Webseiten?", antwort: "80" }
     ];
 
-    let index = 0;
-    const output = document.getElementById("output");
-    const terminal = document.getElementById("terminal");
-    const matrix = document.getElementById("matrixCanvas");
-    const finalMsg = document.getElementById("finalMessage");
+    let bootIndex = 0;
+    let storyIndex = 0;
+    let frageIndex = 0;
 
-    function handleKey(event) {
-      if (event.key === "Enter") {
-        const input = document.getElementById("input");
-        const userAntwort = input.value.trim().toLowerCase();
-        const richtigeAntwort = quiz[index].antwort.toLowerCase();
+    function typeLine(text, target, callback) {
+      let i = 0;
+      target.innerHTML = "";
+      const interval = setInterval(() => {
+        target.innerHTML += text.charAt(i);
+        i++;
+        if (i >= text.length) {
+          clearInterval(interval);
+          if (callback) setTimeout(callback, 400);
+        }
+      }, 25);
+    }
 
-        output.innerText += `> ${userAntwort}\n`;
+    function updateProgress(percent) {
+      progressBar.style.width = percent + "%";
+    }
 
-        if (userAntwort === richtigeAntwort) {
-          index++;
-          if (index < quiz.length) {
-            output.innerText += "Richtig.\n\n" + quiz[index].frage + "\n";
+    function showBootMessages() {
+      if (bootIndex < bootMessages.length) {
+        const line = document.createElement("div");
+        line.className = "line";
+        terminal.insertBefore(line, progressBar.parentElement);
+        typeLine("[BOOT] " + bootMessages[bootIndex], line, () => {
+          updateProgress(((bootIndex + 1) / bootMessages.length) * 100);
+          bootIndex++;
+          showBootMessages();
+        });
+      } else {
+        blackout.style.display = "block";
+        setTimeout(() => {
+          blackout.style.display = "none";
+          startStory();
+        }, 2000);
+      }
+    }
+
+    function startStory() {
+      terminal.innerHTML = ""; // clear screen
+      storyIndex = 0;
+      showStoryLine();
+    }
+
+    function showStoryLine() {
+      if (storyIndex < storyLines.length) {
+        const line = document.createElement("div");
+        line.className = "line";
+        terminal.appendChild(line);
+        typeLine(storyLines[storyIndex], line, () => {
+          storyIndex++;
+          showStoryLine();
+        });
+      } else {
+        inputField.style.display = "block";
+        terminal.appendChild(inputField);
+        showFrage();
+      }
+    }
+
+    function showFrage() {
+      const frageLine = document.createElement("div");
+      frageLine.className = "line";
+      frageLine.innerHTML = `<span class='prefix'>[FRAGE]</span> ${quizFragen[frageIndex].frage}`;
+      terminal.appendChild(frageLine);
+    }
+
+    function handleKey(e) {
+      if (e.key === "Enter") {
+        const userInput = inputField.value.trim().toLowerCase();
+        const correct = quizFragen[frageIndex].antwort.toLowerCase();
+        const antwortLine = document.createElement("div");
+        antwortLine.className = "line";
+        antwortLine.innerHTML = `<span class='prefix'>[ANTWORT]</span> ${userInput}`;
+        terminal.appendChild(antwortLine);
+
+        if (userInput === correct) {
+          frageIndex++;
+          if (frageIndex < quizFragen.length) {
+            setTimeout(() => {
+              showFrage();
+              inputField.value = "";
+            }, 500);
           } else {
-            startMatrixEffect();
+            const successLine = document.createElement("div");
+            successLine.className = "line";
+            successLine.innerHTML = `<span class='prefix'>[ZUGRIFF]</span> Zugriff erlaubt. Terminal wird entsperrt...`;
+            terminal.appendChild(successLine);
+            inputField.style.display = "none";
           }
         } else {
-          output.innerText += "Falsch. Zugriff verweigert.\n";
-          input.disabled = true;
+          const failLine = document.createElement("div");
+          failLine.className = "line";
+          failLine.innerHTML = `<span class='prefix'>[FEHLER]</span> Falsche Eingabe. Zugriff verweigert.`;
+          terminal.appendChild(failLine);
+          inputField.disabled = true;
         }
-
-        input.value = "";
-        output.scrollTop = output.scrollHeight;
       }
     }
 
-    output.innerText += quiz[index].frage + "\n";
-
-    function startMatrixEffect() {
-      terminal.style.display = "none";
-      matrix.style.display = "block";
-      const c = matrix;
-      const ctx = c.getContext("2d");
-
-      c.height = window.innerHeight;
-      c.width = window.innerWidth;
-
-      const letters = "10101010100101010101010101010010101010101010";
-      const fontSize = 14;
-      const columns = c.width / fontSize;
-      const drops = Array(Math.floor(columns)).fill(1);
-
-      function draw() {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-        ctx.fillRect(0, 0, c.width, c.height);
-
-        ctx.fillStyle = "#ff0033";
-        ctx.font = fontSize + "px monospace";
-
-        for (let i = 0; i < drops.length; i++) {
-          const text = letters.charAt(Math.floor(Math.random() * letters.length));
-          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-          if (drops[i] * fontSize > c.height && Math.random() > 0.975) {
-            drops[i] = 0;
-          }
-
-          drops[i]++;
-        }
-      }
-
-      const interval = setInterval(draw, 33);
-
-      // Nach Matrix-Animation anzeigen
-      setTimeout(() => {
-        clearInterval(interval);
-        matrix.style.display = "none";
-        typeText("Alles richtig\naber das Passwort sag ich dir nicht,\nes ist jedoch auf dieser Seite");
-      }, 5000);
-    }
-
-    function typeText(text) {
-      let i = 0;
-      finalMsg.style.display = "block";
-      finalMsg.innerText = "";
-
-      function typeChar() {
-        if (i < text.length) {
-          finalMsg.innerText += text.charAt(i);
-          i++;
-          setTimeout(typeChar, 50);
-        }
-      }
-
-      typeChar();
-    }
+    setTimeout(() => {
+      showBootMessages();
+    }, 1000);
   </script>
 </body>
 </html>
