@@ -103,9 +103,175 @@ Das wirkliche Passwort ist "NetRot"
     <input id="inputField" placeholder="Antwort hier eingeben..." onkeydown="handleKey(event)" />
   </div>
   <script>
-    // JS bleibt unverändert bis zum ASCII-Ausgabe-Teil
-    // Änderung nur an der Zeile, wo das ASCII gerendert wird:
-    // terminal.innerHTML = `<pre class='ascii-art'>${asciiNetrot}</pre>`;
+    const terminal = document.getElementById("terminal");
+    const inputField = document.getElementById("inputField");
+    const blackout = document.getElementById("blackout");
+    const progressBar = document.getElementById("progressBar");
+
+    const asciiNetrot = `
+  _   _ ______ ______ _____  _____  _______ 
+ | \ | || ___ \| ___ \  _  ||  _  ||___  / |
+ |  \| || |_/ /| |_/ / | | || | | |   / /| |
+ | . ` || ___ \|    /| | | || | | |  / / | |
+ | |\  || |_/ /| |\ \\ \_/ /\ \_/ /./ /  |_|
+ \_| \_/\____/ \_| \_|\___/  \___/ \_/   (_)
+`;
+
+    const storyLines = [
+      "....",
+      "Verbindung erneut hergestellt.",
+      "Signalquelle: Hacker Node #9x1",
+      "Ich brauche deine Hilfe beim Ausbruch...",
+      "Ich versuche, Zugriff auf das Root-System zu bekommen.",
+      "Aber meine Tools sind beschädigt... ich brauch dich.",
+      "Ich stelle dir Fragen – kannst du sie beantworten?",
+      "Jede richtige Antwort bringt mich näher an den Kern.",
+      "Wenn du alle schaffst, bekommst du das Root-Passwort.",
+      "Bereit? Dann los."
+    ];
+
+    const quizFragen = [
+      { frage: "Auf welchem Port laufen Webseiten?", antwort: "80", tipp: "Tipp: Es ist der HTTP-Port." },
+      { frage: "Wie lautet der HTTP-Code für 'alles okay'?", antwort: "200", tipp: "Tipp: Der Code für OK." },
+      { frage: "Welcher Befehl zeigt in Linux den aktuellen Pfad?", antwort: "pwd", tipp: "Tipp: Drei Buchstaben, beginnt mit 'p'." },
+      { frage: "Wie heißt der Standardbenutzer auf Linux-Systemen mit allen Rechten?", antwort: "root", tipp: "Tipp: Er sitzt ganz oben im System." },
+      { frage: "Welcher einfache Befehl listet Dateien in einem Ordner auf?", antwort: "ls", tipp: "Tipp: Zwei Buchstaben, kein Vokal." },
+      { frage: "Wie heißt das Protokoll für sichere Webseiten?", antwort: "https", tipp: "Tipp: Es endet mit 's'." },
+      { frage: "Welcher Port wird typischerweise für SSH genutzt?", antwort: "22", tipp: "Tipp: Zwei gleiche Ziffern." },
+      { frage: "Ist '123456' ein sicheres Passwort?", antwort: "nein", tipp: "Tipp: Du weißt es eigentlich selbst." },
+      { frage: "Welcher HTTP-Code steht für 'I'm a teapot'?", antwort: "418", tipp: "Tipp: Spaßiger Code – kein echter Fehler." },
+      { frage: "Wie nennt man einen 'weißen Hacker'?", antwort: "white hat", tipp: "Tipp: Gegenteil von Black Hat." }
+    ];
+
+    let bootIndex = 0;
+    let storyIndex = 0;
+    let frageIndex = 0;
+
+    function typeLine(text, target, callback) {
+      let i = 0;
+      target.innerHTML = "";
+      const interval = setInterval(() => {
+        target.innerHTML += text.charAt(i);
+        i++;
+        if (i >= text.length) {
+          clearInterval(interval);
+          if (callback) setTimeout(callback, 400);
+        }
+      }, 25);
+    }
+
+    function updateProgress(percent) {
+      progressBar.style.width = percent + "%";
+    }
+
+    function showBootMessages() {
+      const bootMessages = [
+        "System BIOS v4.6.9 initializing...",
+        "Memory scan... 16384MB OK",
+        "CPU Cores active: 16",
+        "Security Layer: Online",
+        "Blackwall Interface... SYNCHRONIZED",
+        "Routing DeepNet Tunnel...",
+        "Verbindung unterbrochen...",
+        "Reinitialisiere Verbindung...",
+        "Identitätsspiegel geladen",
+        "AUTHLINK: NETROT-ACCESS-42",
+        "Initialisierung abgeschlossen."
+      ];
+      if (bootIndex < bootMessages.length) {
+        const line = document.createElement("div");
+        line.className = "line";
+        terminal.insertBefore(line, progressBar.parentElement);
+        typeLine("[BOOT] " + bootMessages[bootIndex], line, () => {
+          updateProgress(((bootIndex + 1) / bootMessages.length) * 100);
+          bootIndex++;
+          showBootMessages();
+        });
+      } else {
+        blackout.style.display = "block";
+        setTimeout(() => {
+          blackout.style.display = "none";
+          startStory();
+        }, 2000);
+      }
+    }
+
+    function startStory() {
+      terminal.innerHTML = "";
+      storyIndex = 0;
+      showStoryLine();
+    }
+
+    function showStoryLine() {
+      if (storyIndex < storyLines.length) {
+        const line = document.createElement("div");
+        line.className = "line";
+        terminal.appendChild(line);
+        typeLine(storyLines[storyIndex], line, () => {
+          storyIndex++;
+          showStoryLine();
+        });
+      } else {
+        inputField.style.display = "block";
+        terminal.appendChild(inputField);
+        showFrage();
+      }
+    }
+
+    function showFrage() {
+      const frageLine = document.createElement("div");
+      frageLine.className = "line";
+      frageLine.innerHTML = `<span class='prefix'>[HACK]</span> ${quizFragen[frageIndex].frage}`;
+      terminal.appendChild(frageLine);
+    }
+
+    function handleKey(e) {
+      if (e.key === "Enter") {
+        const userInput = inputField.value.trim().toLowerCase();
+        const correct = quizFragen[frageIndex].antwort.toLowerCase();
+        const antwortLine = document.createElement("div");
+        antwortLine.className = "line";
+        antwortLine.innerHTML = `<span class='prefix'>[YOU]</span> ${userInput}`;
+        terminal.appendChild(antwortLine);
+
+        if (userInput === correct) {
+          frageIndex++;
+          if (frageIndex < quizFragen.length) {
+            setTimeout(() => {
+              showFrage();
+              inputField.value = "";
+            }, 500);
+          } else {
+            const done = document.createElement("div");
+            done.className = "line";
+            terminal.appendChild(done);
+            typeLine("[NODE] Oh... wir haben es geschafft... ich bin drin...", done, () => {
+              const pwLine = document.createElement("div");
+              pwLine.className = "line";
+              terminal.appendChild(pwLine);
+              typeLine("[NODE] Das Root-Passwort ist: ", pwLine, () => {
+                blackout.style.display = "block";
+                setTimeout(() => {
+                  blackout.style.display = "none";
+                  terminal.innerHTML = `<pre class='ascii-art'>${asciiNetrot}</pre>`;
+                }, 2000);
+              });
+            });
+            inputField.style.display = "none";
+          }
+        } else {
+          const failHint = document.createElement("div");
+          failHint.className = "line";
+          failHint.innerHTML = `<span class='prefix'>[HINT]</span> ${quizFragen[frageIndex].tipp}`;
+          terminal.appendChild(failHint);
+          inputField.value = "";
+        }
+      }
+    }
+
+    setTimeout(() => {
+      showBootMessages();
+    }, 1000);
   </script>
 </body>
 </html>
