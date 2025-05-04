@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NETROT | Cyber Playground</title>
+  <title>NETROT | Zugang</title>
   <style>
     body {
       margin: 0;
@@ -17,16 +17,6 @@
       height: 100vh;
     }
 
-    h1 {
-      font-size: 3em;
-      margin-bottom: 0.2em;
-    }
-
-    p {
-      font-size: 1.2em;
-      color: #ccc;
-    }
-
     .terminal {
       background: #1a1a1a;
       padding: 20px;
@@ -34,26 +24,55 @@
       box-shadow: 0 0 10px #00ff99;
       width: 90%;
       max-width: 600px;
+      text-align: center;
     }
 
-    .cursor {
-      display: inline-block;
-      width: 10px;
-      height: 20px;
-      background-color: #00ff99;
-      animation: blink 1s step-start infinite;
-      vertical-align: bottom;
+    input {
+      background: black;
+      border: 1px solid #00ff99;
+      color: #00ff99;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 1em;
+      width: 80%;
+      margin-top: 20px;
     }
 
-    @keyframes blink {
-      50% { opacity: 0; }
+    button {
+      margin-top: 10px;
+      background: #00ff99;
+      border: none;
+      color: #0d0d0d;
+      font-weight: bold;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-family: monospace;
+    }
+
+    button:hover {
+      background: #00cc77;
     }
   </style>
 </head>
 <body>
   <div class="terminal">
     <h1>NETROT</h1>
-    <p>> initializing<span class="cursor"></span></p>
+    <p>> Welcher HTTP-Status bedeutet "I'm a teapot"?</p>
+    <input type="text" id="answer" placeholder="Antwort hier eingeben..." />
+    <br>
+    <button onclick="checkAnswer()">SENDEN</button>
   </div>
+
+  <script>
+    function checkAnswer() {
+      const correct = "418";
+      const input = document.getElementById("answer").value.trim();
+      if (input === correct) {
+        alert("Guter Job! Hier ist die Lösung: \"NetRot\"");
+      } else {
+        alert("Falsch. Versuch’s nochmal.");
+      }
+    }
+  </script>
 </body>
 </html>
