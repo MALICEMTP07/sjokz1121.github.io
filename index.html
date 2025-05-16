@@ -1,270 +1,152 @@
 <!DOCTYPE html>
-<!-- 
-Das wirkliche Passwort ist "NetRot"
-Das wirkliche Passwort ist "NetRot"
-Das wirkliche Passwort ist "NetRot"
-Das wirkliche Passwort ist "NetRot"
-Das wirkliche Passwort ist "NetRot"
-Das wirkliche Passwort ist "NetRot"
--->
-<html lang="de">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NETROT // ACCESS NODE</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M∀LICE</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
-    body {
+    body, html {
       margin: 0;
-      background: #000;
-      color: #ff0033;
-      font-family: 'Courier New', Courier, monospace;
+      padding: 0;
+      background: black;
+      color: #00ff99;
+      font-family: monospace;
       overflow: hidden;
     }
-    #terminal {
-      width: 100vw;
-      height: 100vh;
-      padding: 20px;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-start;
-      background: #000;
-    }
-    .line {
-      width: 100%;
-      display: flex;
-      flex-wrap: wrap;
-    }
-    .prefix {
-      color: #ff0033;
-    }
-    #inputField {
-      background: transparent;
-      border: none;
-      outline: none;
-      color: #ff0033;
-      font: inherit;
-      flex: 1;
-      width: 100%;
-      margin-top: 10px;
-      display: none;
-    }
-    .progress-container {
-      width: 100%;
-      background: #111;
-      border: 1px solid #ff0033;
-      height: 20px;
-      margin: 10px 0;
-      font-size: 14px;
-      letter-spacing: 2px;
-      color: #ff0033;
-    }
-    .progress-bar {
-      height: 100%;
-      background: repeating-linear-gradient(90deg, #ff0033 0, #ff0033 10px, #330000 10px, #330000 20px);
-      width: 0%;
-      transition: width 0.1s linear;
-    }
-    #blackout {
-      position: fixed;
+
+    canvas {
+      position: absolute;
       top: 0;
       left: 0;
+      z-index: 1;
+    }
+
+    .flip-container {
+      position: absolute;
       width: 100vw;
       height: 100vh;
-      background: #000;
-      z-index: 999;
-      display: none;
+      top: 0;
+      left: 0;
+      perspective: 1000px;
+      z-index: 2;
     }
-    .big-message {
-      font-size: 48px;
-      font-weight: bold;
-      color: #ff0033;
-      animation: flicker 2s infinite;
-      text-align: center;
+
+    .flipper {
+      position: relative;
       width: 100%;
-      margin-top: 20vh;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: 2s;
     }
-    @keyframes flicker {
-      0% { opacity: 1; }
-      45% { opacity: 0.4; }
-      55% { opacity: 0.6; }
-      70% { opacity: 1; }
-      85% { opacity: 0.3; }
-      100% { opacity: 1; }
+
+    .flipped .flipper {
+      transform: rotateX(180deg);
+    }
+
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .back {
+      transform: rotateX(180deg);
+      background: black;
+    }
+
+    .malice {
+      font-size: 4em;
+      animation: glitch 1s infinite;
+    }
+
+    .subtext {
+      font-size: 1.2em;
+      opacity: 0.7;
+    }
+
+    @keyframes glitch {
+      0% { text-shadow: 1px 1px red; }
+      25% { text-shadow: -1px 1px blue; }
+      50% { text-shadow: 2px -1px lime; }
+      75% { text-shadow: -2px -2px cyan; }
+      100% { text-shadow: 1px 1px red; }
     }
   </style>
 </head>
 <body>
-  <div id="blackout"></div>
-  <div id="terminal">
-    <div class="line" id="bootLine"></div>
-    <div class="progress-container">
-      <div class="progress-bar" id="progressBar"></div>
+  <div class="scene">
+    <canvas id="bunnyCanvas"></canvas>
+    <div class="flip-container" id="flip">
+      <div class="flipper">
+        <div class="front"></div>
+        <div class="back">
+          <h1 class="malice">M∀LICE</h1>
+          <p class="subtext">welcome to the underground</p>
+        </div>
+      </div>
     </div>
-    <input id="inputField" placeholder="Antwort hier eingeben..." onkeydown="handleKey(event)" />
   </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
   <script>
-    const terminal = document.getElementById("terminal");
-    const inputField = document.getElementById("inputField");
-    const blackout = document.getElementById("blackout");
-    const progressBar = document.getElementById("progressBar");
+    let bunny;
+    let holeX, holeY;
+    let jumpedIn = false;
+    let flipTimer = 0;
 
-    const storyLines = [
-      "....",
-      "Verbindung erneut hergestellt.",
-      "Signalquelle: Hacker Node #9x1",
-      "Ich brauche deine Hilfe beim Ausbruch...",
-      "Ich versuche, Zugriff auf das Root-System zu bekommen.",
-      "Aber meine Tools sind beschädigt... ich brauch dich.",
-      "Ich stelle dir Fragen – kannst du sie beantworten?",
-      "Jede richtige Antwort bringt mich näher an den Kern.",
-      "Wenn du alle schaffst, bekommst du das Root-Passwort.",
-      "Bereit? Dann los."
-    ];
-
-    const quizFragen = [
-      { frage: "Auf welchem Port laufen Webseiten?", antwort: "80", tipp: "Tipp: Es ist der HTTP-Port." },
-      { frage: "Wie lautet der HTTP-Code für 'alles okay'?", antwort: "200", tipp: "Tipp: Der Code für OK." },
-      { frage: "Welcher Befehl zeigt in Linux den aktuellen Pfad?", antwort: "pwd", tipp: "Tipp: Drei Buchstaben, beginnt mit 'p'." },
-      { frage: "Wie heißt der Standardbenutzer auf Linux-Systemen mit allen Rechten?", antwort: "root", tipp: "Tipp: Er sitzt ganz oben im System." },
-      { frage: "Welcher einfache Befehl listet Dateien in einem Ordner auf?", antwort: "ls", tipp: "Tipp: Zwei Buchstaben, kein Vokal." },
-      { frage: "Wie heißt das Protokoll für sichere Webseiten?", antwort: "https", tipp: "Tipp: Es endet mit 's'." },
-      { frage: "Welcher Port wird typischerweise für SSH genutzt?", antwort: "22", tipp: "Tipp: Zwei gleiche Ziffern." },
-      { frage: "Ist '123456' ein sicheres Passwort?", antwort: "nein", tipp: "Tipp: Du weißt es eigentlich selbst." },
-      { frage: "Welcher HTTP-Code steht für 'I'm a teapot'?", antwort: "418", tipp: "Tipp: Spaßiger Code – kein echter Fehler." },
-      { frage: "Wie nennt man einen 'weißen Hacker'?", antwort: "white hat", tipp: "Tipp: Gegenteil von Black Hat." }
-    ];
-
-    let bootIndex = 0;
-    let storyIndex = 0;
-    let frageIndex = 0;
-
-    function typeLine(text, target, callback) {
-      let i = 0;
-      target.innerHTML = "";
-      const interval = setInterval(() => {
-        target.innerHTML += text.charAt(i);
-        i++;
-        if (i >= text.length) {
-          clearInterval(interval);
-          if (callback) setTimeout(callback, 400);
-        }
-      }, 25);
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      bunny = { x: 50, y: height / 2, size: 30, vy: 0, jumping: false };
+      holeX = width / 2;
+      holeY = height / 2 + 10;
     }
 
-    function updateProgress(percent) {
-      progressBar.style.width = percent + "%";
-    }
+    function draw() {
+      clear();
+      noStroke();
 
-    function showBootMessages() {
-      const bootMessages = [
-        "System BIOS v4.6.9 initializing...",
-        "Memory scan... 16384MB OK",
-        "CPU Cores active: 16",
-        "Security Layer: Online",
-        "Blackwall Interface... SYNCHRONIZED",
-        "Routing DeepNet Tunnel...",
-        "Verbindung unterbrochen...",
-        "Reinitialisiere Verbindung...",
-        "Identitätsspiegel geladen",
-        "AUTHLINK: NETROT-ACCESS-42",
-        "Initialisierung abgeschlossen."
-      ];
-      if (bootIndex < bootMessages.length) {
-        const line = document.createElement("div");
-        line.className = "line";
-        terminal.insertBefore(line, progressBar.parentElement);
-        typeLine("[BOOT] " + bootMessages[bootIndex], line, () => {
-          updateProgress(((bootIndex + 1) / bootMessages.length) * 100);
-          bootIndex++;
-          showBootMessages();
-        });
-      } else {
-        blackout.style.display = "block";
-        setTimeout(() => {
-          blackout.style.display = "none";
-          startStory();
-        }, 2000);
-      }
-    }
+      // Hole
+      fill(0);
+      ellipse(holeX, holeY + 20, 80, 20);
 
-    function startStory() {
-      terminal.innerHTML = "";
-      storyIndex = 0;
-      showStoryLine();
-    }
+      // Bunny
+      fill(255);
+      rect(bunny.x, bunny.y, bunny.size, bunny.size);
 
-    function showStoryLine() {
-      if (storyIndex < storyLines.length) {
-        const line = document.createElement("div");
-        line.className = "line";
-        terminal.appendChild(line);
-        typeLine(storyLines[storyIndex], line, () => {
-          storyIndex++;
-          showStoryLine();
-        });
-      } else {
-        inputField.style.display = "block";
-        terminal.appendChild(inputField);
-        showFrage();
-      }
-    }
-
-    function showFrage() {
-      const frageLine = document.createElement("div");
-      frageLine.className = "line";
-      frageLine.innerHTML = `<span class='prefix'>[HACK]</span> ${quizFragen[frageIndex].frage}`;
-      terminal.appendChild(frageLine);
-    }
-
-    function handleKey(e) {
-      if (e.key === "Enter") {
-        const userInput = inputField.value.trim().toLowerCase();
-        const correct = quizFragen[frageIndex].antwort.toLowerCase();
-        const antwortLine = document.createElement("div");
-        antwortLine.className = "line";
-        antwortLine.innerHTML = `<span class='prefix'>[YOU]</span> ${userInput}`;
-        terminal.appendChild(antwortLine);
-
-        if (userInput === correct) {
-          frageIndex++;
-          if (frageIndex < quizFragen.length) {
-            setTimeout(() => {
-              showFrage();
-              inputField.value = "";
-            }, 500);
-          } else {
-            const done = document.createElement("div");
-            done.className = "line";
-            terminal.appendChild(done);
-            typeLine("[NODE] Oh... wir haben es geschafft... ich bin drin...", done, () => {
-              const pwLine = document.createElement("div");
-              pwLine.className = "line";
-              terminal.appendChild(pwLine);
-              typeLine("[NODE] Das Root-Passwort ist: ", pwLine, () => {
-                blackout.style.display = "block";
-                setTimeout(() => {
-                  blackout.style.display = "none";
-                  terminal.innerHTML = "<div class='big-message'>NETROT</div>";
-                }, 2000);
-              });
-            });
-            inputField.style.display = "none";
+      if (!jumpedIn) {
+        bunny.x += 2;
+        if (bunny.jumping) {
+          bunny.vy += 0.5;
+          bunny.y += bunny.vy;
+          if (bunny.y > height / 2) {
+            bunny.y = height / 2;
+            bunny.jumping = false;
+            bunny.vy = 0;
           }
-        } else {
-          const failHint = document.createElement("div");
-          failHint.className = "line";
-          failHint.innerHTML = `<span class='prefix'>[HINT]</span> ${quizFragen[frageIndex].tipp}`;
-          terminal.appendChild(failHint);
-          inputField.value = "";
+        }
+
+        if (bunny.x >= holeX - 20 && !bunny.jumping) {
+          bunny.vy = -10;
+          bunny.jumping = true;
+        }
+
+        if (bunny.x >= holeX + 20 && bunny.y >= holeY) {
+          jumpedIn = true;
+          flipTimer = millis();
+        }
+      } else {
+        if (millis() - flipTimer > 1000) {
+          document.getElementById('flip').classList.add('flipped');
+          noLoop();
         }
       }
     }
-
-    setTimeout(() => {
-      showBootMessages();
-    }, 1000);
   </script>
 </body>
 </html>
