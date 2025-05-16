@@ -8,83 +8,81 @@
     body, html {
       margin: 0;
       padding: 0;
-      background: radial-gradient(ellipse at center, #000 0%, #050505 100%);
+      background: black;
       color: #33ffcc;
       font-family: 'Courier New', monospace;
       overflow: hidden;
     }
 
-    .matrix {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      background: url('https://media.giphy.com/media/fdLRj62Qph3bS/giphy.gif') center center / cover no-repeat;
-      opacity: 0.05;
-      z-index: 0;
-    }
-
-    .quote {
+    .centerText {
       position: absolute;
-      top: 20%;
+      top: 30%;
       width: 100%;
       text-align: center;
-      font-size: 1.5em;
-      color: #00ff99;
-      animation: fadeIn 3s ease forwards;
+      font-size: 2em;
+      color: white;
     }
 
-    .entryButton {
+    .startTrigger {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       padding: 1em 2em;
       background: none;
-      border: 2px solid #33ffcc;
-      color: #33ffcc;
-      font-size: 1.2em;
+      border: 2px solid white;
+      color: white;
+      font-size: 1em;
       cursor: pointer;
       z-index: 2;
-      transition: all 0.3s ease;
     }
 
-    .entryButton:hover {
-      background: #33ffcc;
-      color: black;
-    }
-
-    .title {
+    .maliceText, .wakeText {
       position: absolute;
       top: 40%;
       left: 50%;
       transform: translate(-50%, -50%);
       font-size: 4em;
-      letter-spacing: 0.1em;
+      color: #ff00cc;
+      text-align: center;
       opacity: 0;
-      transition: opacity 1.5s ease;
     }
 
-    .title.show {
-      opacity: 1;
+    .glitch {
+      animation: glitch 0.5s linear infinite;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    @keyframes glitch {
+      0% { text-shadow: 2px 2px red; }
+      20% { text-shadow: -2px -1px lime; }
+      40% { text-shadow: 2px -2px blue; }
+      60% { text-shadow: -1px 2px magenta; }
+      80% { text-shadow: 1px -1px cyan; }
+      100% { text-shadow: 2px 2px red; }
     }
   </style>
 </head>
 <body>
-  <div class="matrix"></div>
-  <div class="quote">"We're all mad here – but some of us hack reality."</div>
-  <button class="entryButton" onclick="revealMalice()">Enter the RabbitHole</button>
-  <div id="maliceTitle" class="title">M∀LICE</div>
+  <div class="centerText" id="startText">follow the white rabbit</div>
+  <button class="startTrigger" onclick="startSequence()">●</button>
+  <div id="malice" class="maliceText">M∀LICE</div>
+  <div id="wake" class="wakeText">wake up</div>
 
   <script>
-    function revealMalice() {
-      document.querySelector('.entryButton').style.display = 'none';
-      document.querySelector('.quote').style.display = 'none';
-      document.getElementById('maliceTitle').classList.add('show');
+    function startSequence() {
+      document.getElementById('startText').style.display = 'none';
+      document.querySelector('.startTrigger').style.display = 'none';
+      const malice = document.getElementById('malice');
+      const wake = document.getElementById('wake');
+
+      malice.classList.add('glitch');
+      malice.style.opacity = 1;
+
+      setTimeout(() => {
+        malice.style.opacity = 0;
+        malice.classList.remove('glitch');
+        wake.style.opacity = 1;
+      }, 3000);
     }
   </script>
 </body>
